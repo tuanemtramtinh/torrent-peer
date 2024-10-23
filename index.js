@@ -8,12 +8,7 @@ import { HOST, PORT, storagePath } from "./helpers/constant.js";
 import { createZeroArary } from "./helpers/createZeroArray.js";
 import { downloadFile } from "./helpers/downloadFile.js";
 import { makeid } from "./helpers/generateRandom.js";
-
-// async function parsedTorrentFile(fileName) {
-//   const fileContent = fs.readFileSync(`./torrent/${fileName}`);
-//   const parsedFile = await parseTorrent(fileContent);
-//   return parsedFile;
-// }
+import ip from "ip";
 
 function createBitfieldMessage(numOfPieces) {
   const message = Buffer.alloc(4 + 1 + numOfPieces);
@@ -90,7 +85,6 @@ const server = net.createServer((socket) => {
         return;
       }
 
-      
       pieceArrayCheck = createZeroArary(numOfPieces);
 
       // console.log("Valid handshake received, info_hash and peer_id accepted");
@@ -135,7 +129,7 @@ const server = net.createServer((socket) => {
         if (pieceArrayCheck[pieceIndex] === 0) {
           pieceArrayCheck[pieceIndex] = 1;
 
-          let pieceStart = pieceIndex * (2 ** 14);
+          let pieceStart = pieceIndex * 2 ** 14;
 
           // console.log({ pieceIndex, pieceStart, byteOffset, blockLength });
 
@@ -171,11 +165,6 @@ const server = net.createServer((socket) => {
   socket.on("error", (err) => {
     console.error("Socket error:", err.message);
   });
-});
-
-// Start the server and listen for connections
-server.listen(PORT, HOST, () => {
-  console.log(`Server listening on ${HOST}:${PORT}`);
 });
 
 //---------------------------------------------------------------------
@@ -229,4 +218,34 @@ async function createMenu() {
   }
 }
 
+async function createServerMenu() {
+  console.log(
+    "-----Bạn muốn chạy server trên localhost hay giữa các LAN?-----"
+  );
+  console.log("1. Localhost");
+  console.log("2. LAN");
+  console.log(
+    "---------------------------------------------------------------"
+  );
+
+  const answer = await rl.question("Nhap vao lua chon cua ban: ");
+
+  if (answer === "1") {
+    // Start the server and listen for connections
+    server.listen(PORT, HOST, () => {
+      console.log(`Server listening on ${HOST}:${PORT}`);
+    });
+  } else if (answer === "2") {
+    // Start the server and listen for connections
+    const ipAddress = ip.address();
+    server.listen(PORT, ipAddress, () => {
+      console.log(`Server listening on ${ipAddress}:${PORT}`);
+    });
+  }
+
+  await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+  console.clear();
+}
+
+await createServerMenu();
 await createMenu();
