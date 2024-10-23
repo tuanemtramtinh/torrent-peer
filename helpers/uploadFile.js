@@ -2,7 +2,13 @@ import fs from "fs";
 import parseTorrent from "parse-torrent";
 import createTorrent from "create-torrent";
 import axios from "axios";
-import { HOST, PORT, storagePath, torrentPath } from "./constant.js";
+import {
+  HOST,
+  PORT,
+  storagePath,
+  torrentPath,
+  trackerURL,
+} from "./constant.js";
 
 export const checkFileExist = (fileName) => {
   if (fs.existsSync(`${storagePath}/${fileName}`)) {
@@ -12,7 +18,7 @@ export const checkFileExist = (fileName) => {
 };
 
 const options = {
-  announce: "http://localhost:3000/announce",
+  announce: `${trackerURL}/announce`,
 };
 
 export const uploadFile = async (fileName) => {

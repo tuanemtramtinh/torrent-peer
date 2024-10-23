@@ -4,7 +4,7 @@ import * as readline from "node:readline/promises";
 import axios from "axios";
 import { stdin as input, stdout as output } from "node:process";
 import { checkFileExist, uploadFile } from "./helpers/uploadFile.js";
-import { HOST, PORT, storagePath } from "./helpers/constant.js";
+import { HOST, PORT, storagePath, trackerURL } from "./helpers/constant.js";
 import { createZeroArary } from "./helpers/createZeroArray.js";
 import { downloadFile } from "./helpers/downloadFile.js";
 import { makeid } from "./helpers/generateRandom.js";
@@ -40,6 +40,8 @@ function createPieceMessage(pieceIndex, byteOffset, block) {
   return message;
 }
 
+let connectionSelection = "";
+
 const server = net.createServer((socket) => {
   let fileName;
   let pieceArrayCheck;
@@ -64,10 +66,9 @@ const server = net.createServer((socket) => {
 
       // console.log(receiveInfoHash);
 
-      const fileFindResult = await axios.post(
-        "http://localhost:3000/announce/find",
-        { infoHash: receiveInfoHash.toString("base64") }
-      );
+      const fileFindResult = await axios.post(`${trackerURL}/announce/find`, {
+        infoHash: receiveInfoHash.toString("base64"),
+      });
 
       if (fileFindResult.status !== 200) {
         console.log("No infohash found");
@@ -232,11 +233,15 @@ async function createServerMenu() {
 
   if (answer === "1") {
     // Start the server and listen for connections
+    connectionSelection = "localhost";
+
     server.listen(PORT, HOST, () => {
       console.log(`Server listening on ${HOST}:${PORT}`);
     });
   } else if (answer === "2") {
     // Start the server and listen for connections
+    connectionSelection = "lan";
+
     const ipAddress = ip.address();
     server.listen(PORT, ipAddress, () => {
       console.log(`Server listening on ${ipAddress}:${PORT}`);
