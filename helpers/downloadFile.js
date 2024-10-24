@@ -135,7 +135,7 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
 
   const sendRequestMessage = (messageID) => {
     // console.log("Sending request message");
-    let blockSize = 2048;
+    let blockSize = 1024;
 
     if (parsedFile.pieces.length - 1 === pieceIndex) {
       blockSize = parsedFile.lastPieceLength;
@@ -160,10 +160,10 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
   if (messageID === 5) {
     client.write(sendInterestedMessage());
   } else if (messageID === 1) {
-    console.log("Received unchoke message");
+    // console.log("Received unchoke message");
     client.write(sendRequestMessage(1));
   } else if (messageID === 7) {
-    console.log("Received piece message");
+    // console.log("Received piece message");
     const payloadBlockSize = payload.subarray(8).length;
     // console.log(">>>check payloadBlockSize", payloadBlockSize);
     // console.log("messageID 7 come here bro");
@@ -189,7 +189,7 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
     const chunks = [];
 
     client.connect(peerPort, peerIP, () => {
-      console.log("Connected");
+      // console.log("Connected");
       client.write(handshakeMessage);
     });
 
@@ -206,7 +206,7 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
     });
 
     client.on("close", () => {
-      console.log(chunks);
+      // console.log(chunks);
 
       const downloadedData = Buffer.concat(chunks);
 
