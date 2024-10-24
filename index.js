@@ -9,6 +9,7 @@ import { createZeroArary } from "./helpers/createZeroArray.js";
 import { downloadFile } from "./helpers/downloadFile.js";
 import { makeid } from "./helpers/generateRandom.js";
 import ip from "ip";
+import { cancelFile } from "./helpers/cancelFile.js";
 
 function createBitfieldMessage(numOfPieces) {
   const message = Buffer.alloc(4 + 1 + numOfPieces);
@@ -40,7 +41,7 @@ function createPieceMessage(pieceIndex, byteOffset, block) {
   return message;
 }
 
-let connectionSelection = "";
+let currentHost, currentPort;
 
 const server = net.createServer((socket) => {
   let fileName;
@@ -189,11 +190,11 @@ async function createMenu() {
     );
     if (checkFileExist(fileName)) {
       console.log("File co ton tai. Tien hanh chia se file len tracker");
-      const uploadResult = await uploadFile(fileName);
+      const uploadResult = await uploadFile(fileName, currentHost, currentPort);
       if (uploadResult) {
         console.log("Upload len tracker thanh cong");
 
-        await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+        await new Promise((resolve, reject) => setTimeout(resolve, 5000));
         console.clear();
         await createMenu();
       }
@@ -214,8 +215,12 @@ async function createMenu() {
       await createMenu();
     }
   } else if (answer === "3") {
-    server.close();
-    rl.close();
+    const cancelFileResult = await cancelFile(currentHost, currentPort);
+
+    if (cancelFileResult === true) {
+      server.close();
+      rl.close();
+    }
   }
 }
 
@@ -233,20 +238,19 @@ async function createServerMenu() {
 
   if (answer === "1") {
     // Start the server and listen for connections
-    connectionSelection = "localhost";
-
-    server.listen(PORT, HOST, () => {
-      console.log(`Server listening on ${HOST}:${PORT}`);
-    });
+    currentHost = HOST;
+    currentPort = PORT;
   } else if (answer === "2") {
     // Start the server and listen for connections
-    connectionSelection = "lan";
-
     const ipAddress = ip.address();
-    server.listen(PORT, ipAddress, () => {
-      console.log(`Server listening on ${ipAddress}:${PORT}`);
-    });
+
+    currentHost = ipAddress;
+    currentPort = PORT;
   }
+
+  server.listen(currentPort, currentHost, () => {
+    console.log(`Server listening on ${currentHost}:${currentPort}`);
+  });
 
   await new Promise((resolve, reject) => setTimeout(resolve, 1000));
   console.clear();

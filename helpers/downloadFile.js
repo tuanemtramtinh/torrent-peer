@@ -97,8 +97,6 @@ const discoveryPeers = async (parsedFile) => {
   trackerURL.searchParams.append("info_hash", info_hash);
   trackerURL.searchParams.append("left", left);
 
-  // console.log(trackerURL.toString());
-
   const result = await axios.get(trackerURL.toString());
 
   const peers = result.data;
