@@ -1,6 +1,7 @@
 import { parentPort } from "worker_threads";
 import net from "net";
 import crypto from "crypto";
+import { pieceLength } from "./constant";
 
 async function handshakePeers(parsedFile, peerID) {
   let protocolString = Buffer.from("BitTorrent protocol");
@@ -33,7 +34,7 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
 
   const sendRequestMessage = (messageID) => {
     // console.log("Sending request message");
-    let blockSize = /*2 ** 14*/ 1024;
+    let blockSize = /*2 ** 14*/ pieceLength;
 
     if (parsedFile.pieces.length - 1 === pieceIndex) {
       blockSize = parsedFile.lastPieceLength;
