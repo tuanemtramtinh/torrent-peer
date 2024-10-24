@@ -53,6 +53,7 @@ const cloudUpload = async (buffer, fileName) => {
 
 const options = {
   announce: `${trackerURL}/announce`,
+  pieceLength: 4096,
 };
 
 export const uploadFile = async (fileName, currentHost, currentPort) => {
@@ -73,6 +74,8 @@ export const uploadFile = async (fileName, currentHost, currentPort) => {
           );
 
           const parsedTorrentFile = await parseTorrent(torrent);
+
+          // console.log(parsedTorrentFile);
 
           const infoHash = parsedTorrentFile.infoHash;
           const size = parsedTorrentFile.length;

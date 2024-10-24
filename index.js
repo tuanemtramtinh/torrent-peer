@@ -57,7 +57,6 @@ const server = net.createServer((socket) => {
       const protocolStrLength = data.readUInt8(0);
       const protocolStr = data.subarray(1, 20).toString();
       const receiveInfoHash = data.subarray(28, 48);
-      const receivePeerID = data.subarray(48, 68);
 
       if (protocolStrLength !== 19 || protocolStr !== "BitTorrent protocol") {
         console.log("Invalid protocol");
@@ -131,7 +130,7 @@ const server = net.createServer((socket) => {
         if (pieceArrayCheck[pieceIndex] === 0) {
           pieceArrayCheck[pieceIndex] = 1;
 
-          let pieceStart = pieceIndex * 2 ** 14;
+          let pieceStart = pieceIndex * 4096;
 
           // console.log({ pieceIndex, pieceStart, byteOffset, blockLength });
 

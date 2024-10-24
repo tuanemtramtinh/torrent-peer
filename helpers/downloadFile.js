@@ -135,7 +135,7 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
 
   const sendRequestMessage = (messageID) => {
     // console.log("Sending request message");
-    let blockSize = 2 ** 14;
+    let blockSize = 4096;
 
     if (parsedFile.pieces.length - 1 === pieceIndex) {
       blockSize = parsedFile.lastPieceLength;
@@ -206,11 +206,15 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
     });
 
     client.on("close", () => {
+      console.log(chunks);
+
       const downloadedData = Buffer.concat(chunks);
+
       const hash = crypto
         .createHash("sha1")
         .update(downloadedData)
         .digest("hex");
+
       if (parsedFile.pieces.includes(hash)) {
         console.log(`Download pieces ${pieceIndex} sucessfully`);
         // console.log(chunks);
@@ -239,24 +243,6 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
 }
 
 export const downloadFile = async (fileName) => {
-  // return new Promise(async (resolve, reject) => {
-  //   try {
-  //     const parsedFile = await parsedTorrentFile(fileName);
-  //     const peers = await discoveryPeers(parsedFile);
-
-  //     const address = peers[0];
-  //     const peerID = makeid(20);
-
-  //     for (let i = 0; i < parsedFile.pieces.length; i++) {
-  //       await makeConnection(parsedFile, address, peerID, i);
-  //     }
-
-  //     resolve(true);
-  //   } catch (error) {
-  //     console.log(error);
-  //     reject(error);
-  //   }
-  // });
   return new Promise(async (resolve, reject) => {
     const parsedFile = await parsedTorrentFile(fileName);
     const peers = await discoveryPeers(parsedFile);
