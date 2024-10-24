@@ -130,7 +130,7 @@ const server = net.createServer((socket) => {
         if (pieceArrayCheck[pieceIndex] === 0) {
           pieceArrayCheck[pieceIndex] = 1;
 
-          let pieceStart = pieceIndex * 4096;
+          let pieceStart = pieceIndex * 2048;
 
           // console.log({ pieceIndex, pieceStart, byteOffset, blockLength });
 

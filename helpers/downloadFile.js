@@ -135,7 +135,7 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
 
   const sendRequestMessage = (messageID) => {
     // console.log("Sending request message");
-    let blockSize = 4096;
+    let blockSize = 2048;
 
     if (parsedFile.pieces.length - 1 === pieceIndex) {
       blockSize = parsedFile.lastPieceLength;

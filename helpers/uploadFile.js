@@ -53,7 +53,7 @@ const cloudUpload = async (buffer, fileName) => {
 
 const options = {
   announce: `${trackerURL}/announce`,
-  pieceLength: 4096,
+  pieceLength: 2048,
 };
 
 export const uploadFile = async (fileName, currentHost, currentPort) => {
