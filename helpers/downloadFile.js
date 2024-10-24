@@ -1,4 +1,4 @@
-import { storagePath, torrentPath } from "./constant.js";
+import { pieceLength, storagePath, torrentPath } from "./constant.js";
 import parseTorrent from "parse-torrent";
 import fs from "fs";
 import axios from "axios";
@@ -135,7 +135,7 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
 
   const sendRequestMessage = (messageID) => {
     // console.log("Sending request message");
-    let blockSize = 1024;
+    let blockSize = pieceLength;
 
     if (parsedFile.pieces.length - 1 === pieceIndex) {
       blockSize = parsedFile.lastPieceLength;

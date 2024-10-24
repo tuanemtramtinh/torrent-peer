@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
 import {
   localhostTrackerURL,
+  pieceLength,
   storagePath,
   torrentPath,
   trackerURL,
@@ -53,7 +54,7 @@ const cloudUpload = async (buffer, fileName) => {
 
 const options = {
   announce: `${trackerURL}/announce`,
-  pieceLength: 1024,
+  pieceLength: pieceLength,
 };
 
 export const uploadFile = async (fileName, currentHost, currentPort) => {

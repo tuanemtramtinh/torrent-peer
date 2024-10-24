@@ -4,7 +4,13 @@ import * as readline from "node:readline/promises";
 import axios from "axios";
 import { stdin as input, stdout as output } from "node:process";
 import { checkFileExist, uploadFile } from "./helpers/uploadFile.js";
-import { HOST, PORT, storagePath, trackerURL } from "./helpers/constant.js";
+import {
+  HOST,
+  pieceLength,
+  PORT,
+  storagePath,
+  trackerURL,
+} from "./helpers/constant.js";
 import { createZeroArary } from "./helpers/createZeroArray.js";
 import { downloadFile } from "./helpers/downloadFile.js";
 import { makeid } from "./helpers/generateRandom.js";
@@ -130,7 +136,7 @@ const server = net.createServer((socket) => {
         if (pieceArrayCheck[pieceIndex] === 0) {
           pieceArrayCheck[pieceIndex] = 1;
 
-          let pieceStart = pieceIndex * 1024;
+          let pieceStart = pieceIndex * pieceLength;
 
           const block = fileData.subarray(
             pieceStart + byteOffset,
