@@ -196,10 +196,10 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
     client.on("data", (data) => {
       // console.log(data, data.length);
       if (data.length === 68) {
-        console.log(
-          "Peer ID:",
-          data.subarray(data.length - 20).toString("hex")
-        );
+        // console.log(
+        //   "Peer ID:",
+        //   data.subarray(data.length - 20).toString("hex")
+        // );
       } else {
         handlePeerMessages(client, data, parsedFile, pieceIndex, chunks);
       }
@@ -231,7 +231,7 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
         }
       }
 
-      console.log("Connection closed\n");
+      // console.log("Connection closed\n");
       resolve();
     });
 
