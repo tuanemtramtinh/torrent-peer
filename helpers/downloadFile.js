@@ -123,10 +123,21 @@ async function handshakePeers(parsedFile, peerID) {
   return handshake;
 }
 
-function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
+function handlePeerMessages(
+  client,
+  data,
+  parsedFile,
+  pieceIndex,
+  chunks,
+  isReceivingPiece
+) {
   const messagePrefixLength = data.readUInt32BE(0);
   const messageID = data.readUInt8(4);
   let payload = data.subarray(5);
+
+  // console.log(messagePrefixLength);
+
+  // console.log(">>>check data", data);
 
   const sendInterestedMessage = () => {
     const interestedMessage = Buffer.from([0, 0, 0, 1, 2]);
@@ -135,7 +146,7 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
 
   const sendRequestMessage = (messageID) => {
     // console.log("Sending request message");
-    let blockSize = pieceLength;
+    let blockSize;
 
     if (parsedFile.pieces.length - 1 === pieceIndex) {
       blockSize = parsedFile.lastPieceLength;
@@ -145,37 +156,36 @@ function handlePeerMessages(client, data, parsedFile, pieceIndex, chunks) {
 
     let byteOffset = 0;
 
-    const requestMessage = Buffer.alloc(17);
+    const requestMessage = Buffer.alloc(21);
     requestMessage.writeUInt32BE(13, 0);
     requestMessage.writeUInt8(6, 4);
     requestMessage.writeUInt32BE(pieceIndex, 5);
     requestMessage.writeUInt32BE(byteOffset, 9);
     requestMessage.writeUInt32BE(blockSize, 13);
 
-    // console.log(message);
-
     return requestMessage;
   };
 
-  if (messageID === 5) {
+  if (messagePrefixLength === 1 && messageID === 5) {
     client.write(sendInterestedMessage());
-  } else if (messageID === 1) {
+  } else if (messagePrefixLength === 1 && messageID === 1) {
     // console.log("Received unchoke message");
     client.write(sendRequestMessage(1));
   } else if (messageID === 7) {
-    // console.log("Received piece message");
-    const payloadBlockSize = payload.subarray(8).length;
-    // console.log(">>>check payloadBlockSize", payloadBlockSize);
-    // console.log("messageID 7 come here bro");
+    let payloadBlockSize;
+    payloadBlockSize = payload.subarray(8).length;
+    isReceivingPiece.value = true;
+
     if (payloadBlockSize === 0) {
+      isReceivingPiece.value = false;
       client.end();
     } else {
       const block = payload.subarray(8);
       chunks.push(block);
       client.write(sendRequestMessage(7));
     }
-  } else {
-    // console.log(data.length);
+  } else if (isReceivingPiece.value === true) {
+    chunks.push(data);
   }
 }
 
@@ -187,6 +197,7 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
     const handshakeMessage = await handshakePeers(parsedFile, peerID);
 
     const chunks = [];
+    const isReceivingPiece = { value: false };
 
     client.connect(peerPort, peerIP, () => {
       // console.log("Connected");
@@ -201,7 +212,14 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
         //   data.subarray(data.length - 20).toString("hex")
         // );
       } else {
-        handlePeerMessages(client, data, parsedFile, pieceIndex, chunks);
+        handlePeerMessages(
+          client,
+          data,
+          parsedFile,
+          pieceIndex,
+          chunks,
+          isReceivingPiece
+        );
       }
     });
 
@@ -254,8 +272,6 @@ export const downloadFile = async (fileName) => {
     if (peers.length > 1 && numOfPiece >= peers.length) {
       const chunks = await runMultipleWorkers(parsedFile, peers, peerID);
 
-      console.log(chunks);
-
       const outputPath = `${storagePath}/${parsedFile.name}`;
       const outputDir = path.dirname(outputPath);
 
@@ -270,9 +286,11 @@ export const downloadFile = async (fileName) => {
       resolve(true);
     } else {
       const address = peers[0];
+
       for (let i = 0; i < parsedFile.pieces.length; i++) {
         await makeConnection(parsedFile, address, peerID, i);
       }
+
       resolve(true);
     }
   });

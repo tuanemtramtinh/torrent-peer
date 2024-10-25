@@ -18,10 +18,10 @@ import ip from "ip";
 import { cancelFile } from "./helpers/cancelFile.js";
 
 function createBitfieldMessage(numOfPieces) {
-  const message = Buffer.alloc(4 + 1 + numOfPieces);
-  message.writeUInt32BE(numOfPieces, 0);
+  const message = Buffer.alloc(4 + 1);
+  message.writeUInt32BE(1, 0);
   message.writeUInt8(5, 4);
-  message.fill(0xff, 5);
+  // message.fill(0xff, 5);
 
   return message;
 }
@@ -133,7 +133,7 @@ const server = net.createServer((socket) => {
         const byteOffset = data.readUInt32BE(9);
         const blockLength = data.readUInt32BE(13);
 
-        if (pieceArrayCheck[pieceIndex] === 0) {
+        if (pieceArrayCheck[pieceIndex] === 0 ) {
           pieceArrayCheck[pieceIndex] = 1;
 
           let pieceStart = pieceIndex * pieceLength;
@@ -209,9 +209,9 @@ async function createMenu() {
     if (downloadResult) {
       console.log("Download file thanh cong");
 
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
-      console.clear();
-      await createMenu();
+      // await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      // console.clear();
+      // await createMenu();
     }
   } else if (answer === "3") {
     const cancelFileResult = await cancelFile(currentHost, currentPort);

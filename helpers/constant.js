@@ -4,4 +4,4 @@ export const storagePath = "./storage";
 export const torrentPath = "./torrent";
 export const trackerURL = "https://tracker-server-467x.onrender.com";
 export const localhostTrackerURL = "http://localhost:3000";
-export const pieceLength = 1024;
+export const pieceLength = 8192;
