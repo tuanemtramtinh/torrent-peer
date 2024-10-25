@@ -36,13 +36,24 @@ function createPieceMessage(pieceIndex, byteOffset, block) {
   const messageLength = 9 + block.length;
   const message = Buffer.alloc(4 + messageLength);
 
-  message.writeUInt32BE(messageLength, 0);
   message.writeUInt32BE(messageLength, 0); // Write message length
   message.writeUInt8(7, 4); // Write message ID (7 for piece)
   message.writeUInt32BE(pieceIndex, 5); // Write the piece index
   message.writeUInt32BE(byteOffset, 9); // Write the byte offset within the piece
 
   block.copy(message, 13); // Copy the block of data into the message
+
+  return message;
+}
+
+function createPieceMessageFinish() {
+  const messageLength = 9;
+  const message = Buffer.alloc(4 + 9);
+
+  message.writeUInt32BE(messageLength, 0);
+  message.writeUInt8(7, 4);
+  message.writeUInt32BE(4294967295, 5);
+  message.writeUInt32BE(4294967295, 9);
 
   return message;
 }
@@ -133,7 +144,7 @@ const server = net.createServer((socket) => {
         const byteOffset = data.readUInt32BE(9);
         const blockLength = data.readUInt32BE(13);
 
-        if (pieceArrayCheck[pieceIndex] === 0 ) {
+        if (pieceArrayCheck[pieceIndex] === 0) {
           pieceArrayCheck[pieceIndex] = 1;
 
           let pieceStart = pieceIndex * pieceLength;
@@ -151,7 +162,7 @@ const server = net.createServer((socket) => {
 
           socket.write(pieceMessage);
         } else {
-          const message = Buffer.from([0, 0, 0, 2, 7]);
+          const message = createPieceMessageFinish();
           socket.write(message);
         }
       }

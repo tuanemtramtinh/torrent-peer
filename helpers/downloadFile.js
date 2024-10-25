@@ -173,10 +173,18 @@ function handlePeerMessages(
     client.write(sendRequestMessage(1));
   } else if (messageID === 7) {
     let payloadBlockSize;
+    let pieceIndex = payload.subarray(0, 4);
+    let byteOffset = payload.subarray(4, 8);
     payloadBlockSize = payload.subarray(8).length;
+    pieceIndex = pieceIndex.readUInt32BE(0);
+    byteOffset = byteOffset.readUInt32BE(0);
     isReceivingPiece.value = true;
 
-    if (payloadBlockSize === 0) {
+    if (
+      pieceIndex === 4294967295 &&
+      byteOffset === 4294967295 &&
+      payloadBlockSize === 0
+    ) {
       isReceivingPiece.value = false;
       client.end();
     } else {
