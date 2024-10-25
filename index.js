@@ -209,9 +209,9 @@ async function createMenu() {
     if (downloadResult) {
       console.log("Download file thanh cong");
 
-      // await new Promise((resolve, reject) => setTimeout(resolve, 1000));
-      // console.clear();
-      // await createMenu();
+      await new Promise((resolve, reject) => setTimeout(resolve, 3000));
+      console.clear();
+      await createMenu();
     }
   } else if (answer === "3") {
     const cancelFileResult = await cancelFile(currentHost, currentPort);
