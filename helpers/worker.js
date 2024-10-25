@@ -121,30 +121,16 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
 
     client.on("close", () => {
       const downloadedData = Buffer.concat(chunks);
+      // console.log(">>>check downloadedData", downloadedData.length);
       const hash = crypto
         .createHash("sha1")
         .update(downloadedData)
         .digest("hex");
       if (parsedFile.pieces.includes(hash)) {
         console.log(`Download pieces ${pieceIndex} sucessfully`);
-        // console.log(chunks);
-
-        // const outputPath = `${storagePath}/${parsedFile.name}`;
-        // const outputDir = path.dirname(outputPath);
-
-        // if (!fs.existsSync(outputDir)) {
-        //   fs.mkdirSync(outputDir, { recursive: true });
-        // }
-
-        // for (const chunk of chunks) {
-        //   fs.appendFileSync(outputPath, chunk);
-        // }
 
         resolve(chunks);
       }
-
-      // console.log("Connection closed\n");
-      // resolve();
     });
 
     client.on("error", (err) => {
@@ -169,9 +155,10 @@ parentPort.on("message", async (message) => {
 
   for (let i = start; i <= end; i++) {
     const data = await makeConnection(parsedFile, peer, peerID, i);
+    const buffer = Buffer.concat(data);
     result.push({
       pieceIndex: i,
-      piece: data[0],
+      piece: buffer,
     });
   }
 

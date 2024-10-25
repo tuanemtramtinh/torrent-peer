@@ -272,6 +272,8 @@ export const downloadFile = async (fileName) => {
     if (peers.length > 1 && numOfPiece >= peers.length) {
       const chunks = await runMultipleWorkers(parsedFile, peers, peerID);
 
+      // console.log(chunks);
+
       const outputPath = `${storagePath}/${parsedFile.name}`;
       const outputDir = path.dirname(outputPath);
 
