@@ -9,6 +9,7 @@ import {
   pieceLength,
   PORT,
   storagePath,
+  torrentPath,
   trackerURL,
 } from "./helpers/constant.js";
 import { createZeroArary } from "./helpers/createZeroArray.js";
@@ -181,6 +182,16 @@ const server = net.createServer((socket) => {
 
 //---------------------------------------------------------------------
 
+if (!fs.existsSync(storagePath)) {
+  fs.mkdirSync(storagePath, { recursive: true });
+}
+
+if (!fs.existsSync(torrentPath)) {
+  fs.mkdirSync(torrentPath, { recursive: true });
+}
+
+//---------------------------------------------------------------------
+
 const rl = readline.createInterface({ input, output });
 
 await new Promise((resolve, reject) => setTimeout(resolve, 500));
@@ -204,12 +215,16 @@ async function createMenu() {
       if (uploadResult) {
         console.log("Upload len tracker thanh cong");
 
-        await new Promise((resolve, reject) => setTimeout(resolve, 5000));
+        await new Promise((resolve, reject) => setTimeout(resolve, 3000));
         console.clear();
         await createMenu();
       }
     } else {
-      console.log("File khong ton tai");
+      console.log("File khong ton tai, vui lòng thử file khác");
+      await new Promise((resolve, reject) => setTimeout(resolve, 3000));
+
+      console.clear();
+      await createMenu();
     }
   } else if (answer === "2") {
     const fileName = await rl.question(
@@ -219,6 +234,12 @@ async function createMenu() {
 
     if (downloadResult) {
       console.log("Download file thanh cong");
+
+      await new Promise((resolve, reject) => setTimeout(resolve, 3000));
+      console.clear();
+      await createMenu();
+    } else {
+      console.log("Tai file khong thanh cong");
 
       await new Promise((resolve, reject) => setTimeout(resolve, 3000));
       console.clear();

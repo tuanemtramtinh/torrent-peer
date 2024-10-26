@@ -84,9 +84,15 @@ const runMultipleWorkers = async (parsedFile, peers, peerID) => {
 };
 
 async function parsedTorrentFile(fileName) {
-  const fileContent = fs.readFileSync(`${torrentPath}/${fileName}`);
-  const parsedFile = await parseTorrent(fileContent);
-  return parsedFile;
+  try {
+    const filePath = `${torrentPath}/${fileName}`;
+    fs.accessSync(filePath, fs.constants.F_OK);
+    const parsedFile = await parseTorrent(fileContent);
+    const fileContent = fs.readFileSync(filePath);
+    return parsedFile;
+  } catch (error) {
+    return null;
+  }
 }
 
 const discoveryPeers = async (parsedFile) => {
@@ -271,8 +277,21 @@ async function makeConnection(parsedFile, peer, peerID, pieceIndex = 0) {
 export const downloadFile = async (fileName) => {
   return new Promise(async (resolve, reject) => {
     const parsedFile = await parsedTorrentFile(fileName);
+
+    if(parsedFile === null) {
+      console.log("File torrent không tồn tại, vui lòng thử file khác");
+      return resolve(false);
+    }
+
     const peers = await discoveryPeers(parsedFile);
-    // const address = peers[0];
+
+    console.log(peers);
+
+    if (peers.length === 0) {
+      console.log("Hiện không có seeders nào, vui lòng thử file khác");
+      return resolve(false);
+    }
+
     const peerID = makeid(20);
 
     const numOfPiece = parsedFile.pieces.length;
@@ -301,7 +320,7 @@ export const downloadFile = async (fileName) => {
         await makeConnection(parsedFile, address, peerID, i);
       }
 
-      resolve(true);
+      return cresolve(true);
     }
   });
 };

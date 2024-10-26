@@ -76,8 +76,6 @@ export const uploadFile = async (fileName, currentHost, currentPort) => {
 
           const parsedTorrentFile = await parseTorrent(torrent);
 
-          // console.log(parsedTorrentFile);
-
           const infoHash = parsedTorrentFile.infoHash;
           const size = parsedTorrentFile.length;
           const fileName = parsedTorrentFile.name;
@@ -106,6 +104,7 @@ export const uploadFile = async (fileName, currentHost, currentPort) => {
           url.searchParams.append("file_name", fileName);
           url.searchParams.append("info_hash", infoHash);
           url.searchParams.append("num_of_pieces", numOfPieces);
+          url.searchParams.append("size", size);
           url.searchParams.append("ip", currentHost);
           url.searchParams.append("port", currentPort);
           url.searchParams.append("left", 0);
