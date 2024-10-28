@@ -87,8 +87,8 @@ async function parsedTorrentFile(fileName) {
   try {
     const filePath = `${torrentPath}/${fileName}`;
     fs.accessSync(filePath, fs.constants.F_OK);
-    const parsedFile = await parseTorrent(fileContent);
     const fileContent = fs.readFileSync(filePath);
+    const parsedFile = await parseTorrent(fileContent);
     return parsedFile;
   } catch (error) {
     return null;
@@ -278,7 +278,7 @@ export const downloadFile = async (fileName) => {
   return new Promise(async (resolve, reject) => {
     const parsedFile = await parsedTorrentFile(fileName);
 
-    if(parsedFile === null) {
+    if (parsedFile === null) {
       console.log("File torrent không tồn tại, vui lòng thử file khác");
       return resolve(false);
     }
@@ -320,7 +320,7 @@ export const downloadFile = async (fileName) => {
         await makeConnection(parsedFile, address, peerID, i);
       }
 
-      return cresolve(true);
+      return resolve(true);
     }
   });
 };
