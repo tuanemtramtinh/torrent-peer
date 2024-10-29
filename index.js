@@ -2,7 +2,7 @@ import fs from "fs";
 import * as net from "net";
 import * as readline from "node:readline/promises";
 import axios from "axios";
-import { stdin as input, stdout as output } from "node:process";
+import { exit, stdin as input, stdout as output } from "node:process";
 import { checkFileExist, uploadFile } from "./helpers/uploadFile.js";
 import {
   HOST,
@@ -220,7 +220,7 @@ async function createMenu() {
         await createMenu();
       }
     } else {
-      console.log("File khong ton tai, vui lòng thử file khác");
+      console.log("File không tồn tại, vui lòng thử file khác");
       await new Promise((resolve, reject) => setTimeout(resolve, 3000));
 
       console.clear();
@@ -233,13 +233,13 @@ async function createMenu() {
     const downloadResult = await downloadFile(fileName);
 
     if (downloadResult) {
-      console.log("Download file thanh cong");
+      console.log("Download file thành công");
 
       await new Promise((resolve, reject) => setTimeout(resolve, 3000));
       console.clear();
       await createMenu();
     } else {
-      console.log("Tai file khong thanh cong");
+      console.log("Tải file không thành công");
 
       await new Promise((resolve, reject) => setTimeout(resolve, 3000));
       console.clear();
@@ -261,11 +261,12 @@ async function createServerMenu() {
   );
   console.log("1. Localhost");
   console.log("2. LAN");
+  console.log("3. Thoát ra");
   console.log(
     "---------------------------------------------------------------"
   );
 
-  const answer = await rl.question("Nhap vao lua chon cua ban: ");
+  const answer = await rl.question("Nhập vào lựa chọn của bạn: ");
 
   if (answer === "1") {
     // Start the server and listen for connections
@@ -277,6 +278,13 @@ async function createServerMenu() {
 
     currentHost = ipAddress;
     currentPort = PORT;
+  } else if (answer === "3") {
+    exit(0);
+  } else {
+    console.log("Lựa chọn không hợp lệ, vui lòng thử lại");
+    await new Promise((resolve, reject) => setTimeout(resolve, 2000));
+    console.clear();
+    await createServerMenu();
   }
 
   server.listen(currentPort, currentHost, () => {
